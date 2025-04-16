@@ -1,0 +1,24 @@
+ninja_required_version = 1.3
+cxx = c++
+
+cflags = -pthread -B /data/npl/Speech2Text/RNN-Transducer/env/compiler_compat -Wno-unused-result -Wsign-compare -DNDEBUG -fwrapv -O2 -Wall -fPIC -O2 -isystem /data/npl/Speech2Text/RNN-Transducer/env/include -fPIC -O2 -isystem /data/npl/Speech2Text/RNN-Transducer/env/include -fPIC -I/data/npl/Speech2Text/RNN-Transducer/warp-transducer/include -I/home/npl/.conda/envs/ds/include -I/data/npl/Speech2Text/RNN-Transducer/env/lib/python3.10/site-packages/torch/include -I/data/npl/Speech2Text/RNN-Transducer/env/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -I/data/npl/Speech2Text/RNN-Transducer/env/lib/python3.10/site-packages/torch/include/TH -I/data/npl/Speech2Text/RNN-Transducer/env/lib/python3.10/site-packages/torch/include/THC -I/data/npl/Speech2Text/RNN-Transducer/env/include/python3.10 -c
+post_cflags = -fPIC -std=c++17 -DWARPRNNT_ENABLE_GPU -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=warp_rnnt -D_GLIBCXX_USE_CXX11_ABI=0
+cuda_dlink_post_cflags = 
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+
+
+
+
+build /data/npl/Speech2Text/RNN-Transducer/warp-transducer/pytorch_binding/build/temp.linux-x86_64-cpython-310/src/binding.o: compile /data/npl/Speech2Text/RNN-Transducer/warp-transducer/pytorch_binding/src/binding.cpp
+
+
+
+
+
+

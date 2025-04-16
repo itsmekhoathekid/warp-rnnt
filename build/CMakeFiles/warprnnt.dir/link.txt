@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -O2 -fopenmp -shared -Wl,-soname,libwarprnnt.so -o libwarprnnt.so CMakeFiles/warprnnt.dir/src/warprnnt_generated_rnnt_entrypoint.cu.o  /home/npl/.conda/envs/ds/lib/libcudart_static.a -ldl -Wl,-Bstatic -lrt -Wl,-Bdynamic

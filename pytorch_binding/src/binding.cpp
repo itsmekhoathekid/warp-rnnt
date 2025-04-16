@@ -1,12 +1,10 @@
-#include <iostream>
+#include <iostream> 
 #include <numeric>
-
 #include <torch/extension.h>
 #include "rnnt.h"
 
 #ifdef WARPRNNT_ENABLE_GPU
-    #include "THC.h"
-    extern THCState* state;
+    #include <ATen/cuda/CUDAContext.h>
 #endif
 
 int cpu_rnnt(torch::Tensor acts,
@@ -38,41 +36,37 @@ int cpu_rnnt(torch::Tensor acts,
     options.loc = RNNT_CPU;
     options.num_threads = num_threads;
 #if defined(RNNT_DISABLE_OMP) || defined(APPLE)
-    // have to use at least one
     options.num_threads = std::max(options.num_threads, (unsigned int) 1);
 #endif
 
     size_t cpu_size_bytes = 0;
-    switch (acts.type().scalarType()) {
+    switch (acts.scalar_type()) {
       case torch::ScalarType::Float:
         {
-        get_workspace_size(maxT, maxU, minibatch_size,
-                           false, &cpu_size_bytes);
+        get_workspace_size(maxT, maxU, minibatch_size, false, &cpu_size_bytes);
 
         float* cpu_workspace = (float*) new unsigned char[cpu_size_bytes];
-        compute_rnnt_loss(acts.data<float>(), grads.data<float>(),
-                         labels.data<int>(), label_lengths.data<int>(),
-                         input_lengths.data<int>(), alphabet_size,
-                         minibatch_size, costs.data<float>(),
+        compute_rnnt_loss(acts.data_ptr<float>(), grads.data_ptr<float>(),
+                         labels.data_ptr<int>(), label_lengths.data_ptr<int>(),
+                         input_lengths.data_ptr<int>(), alphabet_size,
+                         minibatch_size, costs.data_ptr<float>(),
                          cpu_workspace, options);
 
-        delete cpu_workspace;
+        delete[] cpu_workspace;
         return 0;
         }
       case torch::ScalarType::Double:
         {
-        get_workspace_size(maxT, maxU, minibatch_size,
-                           false, &cpu_size_bytes,
-                           sizeof(double));
+        get_workspace_size(maxT, maxU, minibatch_size, false, &cpu_size_bytes, sizeof(double));
 
         double* cpu_workspace = (double*) new unsigned char[cpu_size_bytes];
-        compute_rnnt_loss_fp64(acts.data<double>(), grads.data<double>(),
-                         labels.data<int>(), label_lengths.data<int>(),
-                         input_lengths.data<int>(), alphabet_size,
-                         minibatch_size, costs.data<double>(),
+        compute_rnnt_loss_fp64(acts.data_ptr<double>(), grads.data_ptr<double>(),
+                         labels.data_ptr<int>(), label_lengths.data_ptr<int>(),
+                         input_lengths.data_ptr<int>(), alphabet_size,
+                         minibatch_size, costs.data_ptr<double>(),
                          cpu_workspace, options);
 
-        delete cpu_workspace;
+        delete[] cpu_workspace;
         return 0;
         }
       default:
@@ -80,6 +74,7 @@ int cpu_rnnt(torch::Tensor acts,
     }
     return -1;
 }
+
 #ifdef WARPRNNT_ENABLE_GPU
 int gpu_rnnt(torch::Tensor acts,
             torch::Tensor labels,
@@ -104,47 +99,46 @@ int gpu_rnnt(torch::Tensor acts,
     options.stream = at::cuda::getCurrentCUDAStream();
     options.num_threads = num_threads;
 #if defined(RNNT_DISABLE_OMP) || defined(APPLE)
-    // have to use at least one
     options.num_threads = std::max(options.num_threads, (unsigned int) 1);
 #endif
 
-    switch (acts.type().scalarType()) {
+    switch (acts.scalar_type()) {
       case torch::ScalarType::Float:
         {
         size_t gpu_size_bytes;
-        get_workspace_size(maxT, maxU, minibatch_size,
-                           true, &gpu_size_bytes);
+        get_workspace_size(maxT, maxU, minibatch_size, true, &gpu_size_bytes);
 
-        cudaSetDevice(acts.get_device());
+        cudaSetDevice(acts.device().index());
 
-        void* gpu_workspace = THCudaMalloc(state, gpu_size_bytes);
+        void* gpu_workspace;
+        cudaMalloc(&gpu_workspace, gpu_size_bytes);
 
-        compute_rnnt_loss(acts.data<float>(), grads.data<float>(),
-                         labels.data<int>(), label_lengths.data<int>(),
-                         input_lengths.data<int>(), alphabet_size,
-                         minibatch_size, costs.data<float>(),
+        compute_rnnt_loss(acts.data_ptr<float>(), grads.data_ptr<float>(),
+                         labels.data_ptr<int>(), label_lengths.data_ptr<int>(),
+                         input_lengths.data_ptr<int>(), alphabet_size,
+                         minibatch_size, costs.data_ptr<float>(),
                          gpu_workspace, options);
 
-        THCudaFree(state, gpu_workspace);
+        cudaFree(gpu_workspace);
         return 0;
         }
       case torch::ScalarType::Double:
         {
         size_t gpu_size_bytes;
-        get_workspace_size(maxT, maxU, minibatch_size,
-                           true, &gpu_size_bytes);
+        get_workspace_size(maxT, maxU, minibatch_size, true, &gpu_size_bytes);
 
-        cudaSetDevice(acts.get_device());
+        cudaSetDevice(acts.device().index());
 
-        void* gpu_workspace = THCudaMalloc(state, gpu_size_bytes);
+        void* gpu_workspace;
+        cudaMalloc(&gpu_workspace, gpu_size_bytes);
 
-        compute_rnnt_loss_fp64(acts.data<double>(), grads.data<double>(),
-                         labels.data<int>(), label_lengths.data<int>(),
-                         input_lengths.data<int>(), alphabet_size,
-                         minibatch_size, costs.data<double>(),
+        compute_rnnt_loss_fp64(acts.data_ptr<double>(), grads.data_ptr<double>(),
+                         labels.data_ptr<int>(), label_lengths.data_ptr<int>(),
+                         input_lengths.data_ptr<int>(), alphabet_size,
+                         minibatch_size, costs.data_ptr<double>(),
                          gpu_workspace, options);
 
-        THCudaFree(state, gpu_workspace);
+        cudaFree(gpu_workspace);
         return 0;
         }
       default:

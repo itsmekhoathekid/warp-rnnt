@@ -1,0 +1,11 @@
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/warprnnt.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/test_time_gpu.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/test_gpu.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/test_cpu.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/test_time.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/edit_cache.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/rebuild_cache.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/list_install_components.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/install.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/install/local.dir
+/data/npl/Speech2Text/RNN-Transducer/warp-transducer/build/CMakeFiles/install/strip.dir

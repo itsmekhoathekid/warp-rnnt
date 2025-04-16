@@ -1,0 +1,11 @@
+Metadata-Version: 2.2
+Name: warprnnt_pytorch
+Version: 0.1
+Summary: PyTorch wrapper for RNN-Transducer
+Home-page: https://github.com/HawkAaron/warp-transducer
+Author: Mingkun Huang
+Author-email: mingkunhuang95@gmail.com
+Dynamic: author
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: summary
